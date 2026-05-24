@@ -1,0 +1,247 @@
+/* ─────────────────────────────────────
+   components.css — card, buttons, toast
+───────────────────────────────────── */
+
+/* ── Question card ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 1.75rem;
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+}
+/* top-right corner notch accent */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-left: 16px solid transparent;
+  border-top: 16px solid rgba(207,159,255,.3);
+}
+/* inner gradient sheen */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(207,159,255,.08) 0%, transparent 50%);
+  pointer-events: none;
+}
+.card-inner { position: relative; z-index: 1; }
+
+.q-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: .25em;
+  color: var(--glow-b);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+.q-text {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.5;
+  margin-bottom: 1.75rem;
+  letter-spacing: .02em;
+}
+
+/* ── Option buttons ── */
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.opt-btn {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 2px;
+  padding: 14px 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(200,205,255,.8);
+  cursor: none;
+  text-align: left;
+  line-height: 1.5;
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
+  transition: border-color .25s, background .25s, color .25s, transform .15s;
+}
+.opt-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--glow-a), var(--glow-b));
+  opacity: 0;
+  transition: opacity .25s;
+}
+.opt-btn:hover {
+  border-color: rgba(207,159,255,.4);
+  color: white;
+  transform: translateY(-1px);
+}
+.opt-btn:hover::before  { opacity: .07; }
+.opt-btn.selected {
+  border-color: var(--glow-a);
+  color: white;
+  font-weight: 700;
+  background: rgba(207,159,255,.1);
+  box-shadow: 0 0 20px rgba(207,159,255,.15),
+              inset 0 0 20px rgba(207,159,255,.05);
+}
+.opt-btn.selected::before { opacity: .1; }
+
+/* Click ripple */
+.opt-btn .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  transform: scale(0);
+  animation: ripple .5s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ── Next / transmit button ── */
+.next-btn {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 15px;
+  border: none;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--glow-a), var(--glow-b));
+  color: #000;
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  cursor: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity .35s, transform .35s, box-shadow .2s;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+  position: relative;
+  overflow: hidden;
+}
+.next-btn.show {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.next-btn:hover {
+  box-shadow: 0 0 30px rgba(207,159,255,.5),
+              0 0 60px rgba(91,224,255,.2);
+}
+/* Shine sweep on hover */
+.next-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+  transform: translateX(-100%);
+  transition: transform .5s;
+}
+.next-btn:hover::after { transform: translateX(100%); }
+
+/* ── Share section ── */
+.share-section   { margin-top: 1rem; }
+.share-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: .2em;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+#result-canvas-wrap {
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+}
+#result-canvas { width: 100%; display: block; }
+
+.share-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+.share-btn {
+  padding: 12px 6px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.03);
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--text);
+  cursor: none;
+  text-align: center;
+  text-transform: uppercase;
+  transition: background .2s, box-shadow .2s;
+}
+.share-btn.line  { border-color: rgba(6,199,85,.3);   color: #06C755; }
+.share-btn.copy  { border-color: rgba(207,159,255,.3); color: var(--glow-a); }
+.share-btn.dl    { border-color: rgba(255,180,60,.3);  color: #FFB347; }
+.share-btn.line:hover { background: rgba(6,199,85,.08);   box-shadow: 0 0 15px rgba(6,199,85,.2); }
+.share-btn.copy:hover { background: rgba(207,159,255,.08); box-shadow: 0 0 15px rgba(207,159,255,.2); }
+.share-btn.dl:hover   { background: rgba(255,180,60,.08);  box-shadow: 0 0 15px rgba(255,180,60,.2); }
+
+.restart-btn {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: transparent;
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .15em;
+  color: var(--muted);
+  cursor: none;
+  text-transform: uppercase;
+  transition: color .2s, border-color .2s;
+}
+.restart-btn:hover { color: var(--text); border-color: rgba(255,255,255,.3); }
+
+/* ── Toast notification ── */
+.toast {
+  position: fixed;
+  bottom: 2rem; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(10,10,30,.9);
+  color: var(--glow-b);
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  font-weight: 700;
+  padding: 10px 20px;
+  border: 1px solid var(--glow-b);
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity .3s, transform .3s;
+  pointer-events: none;
+  z-index: 999;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px rgba(91,224,255,.2);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Confetti pieces ── */
+.confetti-piece {
+  position: fixed;
+  top: -10px;
+  pointer-events: none;
+  z-index: 100;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+}
