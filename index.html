@@ -1,945 +1,117 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta property="og:title" content="你最像哪位 XG 成員？"/>
-<meta property="og:description" content="來自外太空的人格測驗，7 題找出你的 XG 本命"/>
-<meta property="og:image" content="og-cover.png"/>
-<meta property="og:type" content="website"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<title>XG 人格測驗 — 來自外太空</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet"/>
-<style>
-:root{
-  --jurin:#f0f0f0;--chisa:#FFE566;--hinata:#5BE0FF;
-  --harvey:#CF9FFF;--juria:#FF9A3C;--maya:#FF5C5C;--cocona:#3EFFAA;
-  --void:#00000f;--deep:#060614;--surface:rgba(255,255,255,0.04);
-  --border:rgba(255,255,255,0.08);--text:#e8eaf6;--muted:rgba(200,205,255,0.4);
-  --glow-a:#CF9FFF;--glow-b:#5BE0FF;
-}
-*{box-sizing:border-box;margin:0;padding:0}
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta property="og:title" content="你最像哪位 XG 成員？"/>
+  <meta property="og:description" content="來自外太空的人格測驗，7 題找出你的 XG 本命"/>
+  <meta property="og:image" content="assets/og-cover.png"/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <title>XG 人格測驗 — 來自外太空</title>
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--void)}
-::-webkit-scrollbar-thumb{background:var(--glow-a);border-radius:2px}
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet"/>
 
-body{
-  background:var(--void);color:var(--text);
-  font-family:'Rajdhani',sans-serif;
-  min-height:100vh;overflow-x:hidden;
-  cursor:none;
-}
-
-/* ── CUSTOM CURSOR ── */
-#cursor{
-  position:fixed;width:12px;height:12px;border-radius:50%;
-  background:var(--glow-a);mix-blend-mode:screen;
-  pointer-events:none;z-index:9999;
-  transform:translate(-50%,-50%);
-  transition:width .15s,height .15s,background .15s;
-  box-shadow:0 0 16px 4px var(--glow-a);
-}
-#cursor-ring{
-  position:fixed;width:36px;height:36px;border-radius:50%;
-  border:1px solid rgba(207,159,255,0.5);
-  pointer-events:none;z-index:9998;
-  transform:translate(-50%,-50%);
-  transition:all .08s linear;
-}
-body:has(.opt-btn:hover) #cursor{background:var(--glow-b);box-shadow:0 0 20px 6px var(--glow-b);width:18px;height:18px}
-
-/* ── STARFIELD CANVAS ── */
-#starfield{
-  position:fixed;inset:0;z-index:0;pointer-events:none;
-}
-
-/* ── NEBULA LAYERS ── */
-.nebula{
-  position:fixed;border-radius:50%;filter:blur(80px);
-  pointer-events:none;z-index:0;animation:nebula-drift 20s ease-in-out infinite alternate;
-}
-.nebula-1{
-  width:600px;height:600px;top:-200px;left:-200px;
-  background:radial-gradient(circle,rgba(207,159,255,0.12),transparent 70%);
-  animation-duration:25s;
-}
-.nebula-2{
-  width:500px;height:500px;bottom:-150px;right:-150px;
-  background:radial-gradient(circle,rgba(91,224,255,0.1),transparent 70%);
-  animation-duration:18s;animation-delay:-9s;
-}
-.nebula-3{
-  width:400px;height:400px;top:40%;left:30%;
-  background:radial-gradient(circle,rgba(63,255,170,0.06),transparent 70%);
-  animation-duration:30s;animation-delay:-15s;
-}
-@keyframes nebula-drift{
-  from{transform:translate(0,0) scale(1)}
-  to{transform:translate(40px,30px) scale(1.1)}
-}
-
-/* ── SCAN LINE OVERLAY ── */
-body::after{
-  content:'';position:fixed;inset:0;
-  background:repeating-linear-gradient(
-    0deg,transparent,transparent 2px,
-    rgba(0,0,20,0.15) 2px,rgba(0,0,20,0.15) 4px
-  );
-  pointer-events:none;z-index:1;opacity:.4;
-}
-
-/* ── MAIN CONTAINER ── */
-.container{
-  position:relative;z-index:2;
-  width:100%;max-width:580px;
-  margin:0 auto;padding:2rem 1.25rem 4rem;
-}
-
-/* ── HEADER ── */
-.header{text-align:center;margin-bottom:3rem;padding-top:1rem}
-.header .signal{
-  font-family:'Orbitron',monospace;font-size:9px;
-  letter-spacing:.3em;color:var(--cocona);
-  text-transform:uppercase;margin-bottom:1rem;
-  animation:blink-signal 3s ease-in-out infinite;
-}
-@keyframes blink-signal{
-  0%,100%{opacity:.6}50%{opacity:1;text-shadow:0 0 10px var(--cocona)}
-}
-.header h1{
-  font-family:'Orbitron',monospace;
-  font-size:clamp(20px,5.5vw,30px);
-  font-weight:900;line-height:1.1;
-  text-transform:uppercase;letter-spacing:.05em;
-}
-.header h1 .line1{
-  display:block;
-  background:linear-gradient(135deg,var(--glow-a),var(--glow-b),var(--cocona));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  filter:drop-shadow(0 0 20px rgba(207,159,255,.5));
-  animation:title-shimmer 4s ease-in-out infinite;
-}
-@keyframes title-shimmer{
-  0%,100%{filter:drop-shadow(0 0 20px rgba(207,159,255,.4))}
-  50%{filter:drop-shadow(0 0 35px rgba(91,224,255,.7))}
-}
-.header h1 .line2{
-  display:block;font-size:.55em;
-  color:rgba(200,205,255,.5);letter-spacing:.2em;
-  font-weight:400;margin-top:.4rem;
-}
-.header .subtitle{
-  margin-top:1rem;font-size:13px;
-  color:var(--muted);letter-spacing:.08em;
-}
-
-/* ── MEMBER ORBIT ── */
-.member-orbit{
-  display:flex;justify-content:center;gap:8px;
-  margin-bottom:2.5rem;flex-wrap:wrap;
-}
-.member-node{
-  width:40px;height:40px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Orbitron',monospace;font-size:9px;font-weight:700;
-  color:#000;position:relative;
-  transition:transform .4s,box-shadow .4s,opacity .4s;
-  opacity:.35;cursor:default;
-}
-.member-node::before{
-  content:'';position:absolute;inset:-3px;border-radius:50%;
-  border:1px solid currentColor;opacity:0;
-  animation:orbit-ring 3s linear infinite;
-  transition:opacity .4s;
-}
-.member-node.active{
-  opacity:1;transform:scale(1.3);
-}
-.member-node.active::before{opacity:.6}
-@keyframes orbit-ring{
-  from{transform:rotate(0deg) scale(1)}
-  to{transform:rotate(360deg) scale(1.05)}
-}
-
-/* ── PROGRESS ── */
-.progress-wrap{
-  display:flex;align-items:center;gap:14px;margin-bottom:1.75rem;
-}
-.progress-track{
-  flex:1;height:2px;
-  background:rgba(255,255,255,0.06);
-  border-radius:99px;overflow:hidden;position:relative;
-}
-.progress-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--glow-a),var(--glow-b));
-  border-radius:99px;
-  transition:width .6s cubic-bezier(.4,0,.2,1);
-  box-shadow:0 0 10px var(--glow-a);
-  position:relative;
-}
-.progress-fill::after{
-  content:'';position:absolute;right:0;top:-2px;
-  width:6px;height:6px;border-radius:50%;
-  background:white;box-shadow:0 0 8px 2px var(--glow-b);
-}
-.progress-num{
-  font-family:'Orbitron',monospace;font-size:10px;
-  color:var(--muted);white-space:nowrap;letter-spacing:.05em;
-}
-
-/* ── QUESTION CARD ── */
-.card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:2px;padding:1.75rem;
-  position:relative;overflow:hidden;
-  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%);
-}
-.card::before{
-  content:'';position:absolute;
-  top:0;right:0;
-  width:0;height:0;
-  border-left:16px solid transparent;
-  border-top:16px solid rgba(207,159,255,.3);
-}
-/* corner accent lines */
-.card::after{
-  content:'';position:absolute;
-  inset:0;border-radius:2px;
-  background:linear-gradient(135deg,rgba(207,159,255,.08) 0%,transparent 50%);
-  pointer-events:none;
-}
-.card-inner{position:relative;z-index:1}
-
-.q-label{
-  font-family:'Orbitron',monospace;font-size:9px;
-  letter-spacing:.25em;color:var(--glow-b);
-  margin-bottom:1rem;text-transform:uppercase;
-}
-.q-text{
-  font-size:17px;font-weight:700;
-  line-height:1.5;margin-bottom:1.75rem;
-  letter-spacing:.02em;
-}
-
-/* ── OPTIONS ── */
-.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.opt-btn{
-  background:rgba(255,255,255,0.03);
-  border:1px solid rgba(255,255,255,0.09);
-  border-radius:2px;padding:14px 12px;
-  font-family:'Rajdhani',sans-serif;font-size:13px;
-  font-weight:500;color:rgba(200,205,255,.8);
-  cursor:none;text-align:left;line-height:1.5;
-  transition:all .25s;position:relative;overflow:hidden;
-  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
-}
-.opt-btn::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,var(--glow-a),var(--glow-b));
-  opacity:0;transition:opacity .25s;
-}
-.opt-btn:hover{
-  border-color:rgba(207,159,255,.4);
-  color:white;transform:translateY(-1px);
-}
-.opt-btn:hover::before{opacity:.07}
-.opt-btn.selected{
-  border-color:var(--glow-a);
-  color:white;font-weight:700;
-  background:rgba(207,159,255,.1);
-  box-shadow:0 0 20px rgba(207,159,255,.15),inset 0 0 20px rgba(207,159,255,.05);
-}
-.opt-btn.selected::before{opacity:.1}
-/* ripple on click */
-.opt-btn .ripple{
-  position:absolute;border-radius:50%;
-  background:rgba(255,255,255,.2);
-  transform:scale(0);animation:ripple .5s ease-out forwards;
-  pointer-events:none;
-}
-@keyframes ripple{to{transform:scale(4);opacity:0}}
-
-/* ── NEXT BTN ── */
-.next-btn{
-  width:100%;margin-top:1.25rem;padding:15px;
-  border:none;border-radius:2px;
-  background:linear-gradient(90deg,var(--glow-a),var(--glow-b));
-  color:#000;font-family:'Orbitron',monospace;
-  font-size:12px;font-weight:700;letter-spacing:.15em;
-  text-transform:uppercase;cursor:none;
-  opacity:0;pointer-events:none;
-  transform:translateY(8px);
-  transition:opacity .35s,transform .35s,box-shadow .2s;
-  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);
-  position:relative;overflow:hidden;
-}
-.next-btn.show{opacity:1;pointer-events:all;transform:translateY(0)}
-.next-btn:hover{box-shadow:0 0 30px rgba(207,159,255,.5),0 0 60px rgba(91,224,255,.2)}
-.next-btn::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
-  transform:translateX(-100%);
-  transition:transform .5s;
-}
-.next-btn:hover::after{transform:translateX(100%)}
-
-/* ── QUESTION TRANSITION ── */
-.card.transitioning{animation:card-out .3s ease forwards}
-.card.entering{animation:card-in .4s ease forwards}
-@keyframes card-out{
-  from{opacity:1;transform:translateX(0) scale(1)}
-  to{opacity:0;transform:translateX(-30px) scale(.97)}
-}
-@keyframes card-in{
-  from{opacity:0;transform:translateX(30px) scale(.97)}
-  to{opacity:1;transform:translateX(0) scale(1)}
-}
-
-/* ── RESULT ── */
-#result-section{display:none}
-#result-section.show{display:block}
-
-.result-bg-ring{
-  position:fixed;top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  width:600px;height:600px;border-radius:50%;
-  pointer-events:none;z-index:1;
-  animation:pulse-ring 4s ease-in-out infinite;
-  opacity:0;transition:opacity 1s;
-}
-.result-bg-ring.visible{opacity:1}
-@keyframes pulse-ring{
-  0%,100%{transform:translate(-50%,-50%) scale(.9);opacity:.3}
-  50%{transform:translate(-50%,-50%) scale(1.1);opacity:.7}
-}
-
-.result-card{
-  border-radius:2px;padding:2.5rem 1.75rem 2rem;
-  text-align:center;margin-bottom:1rem;
-  border:1px solid var(--border);
-  position:relative;overflow:hidden;
-  clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,0 100%);
-  animation:result-entrance .8s cubic-bezier(.17,.67,.35,1.2) forwards;
-}
-@keyframes result-entrance{
-  from{opacity:0;transform:scale(.9) translateY(20px)}
-  to{opacity:1;transform:scale(1) translateY(0)}
-}
-.result-card::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 50% 0%,var(--member-color-20,rgba(207,159,255,.15)) 0%,transparent 65%);
-}
-.result-card::after{
-  content:'';position:absolute;
-  top:0;right:0;
-  width:0;height:0;
-  border-left:24px solid transparent;
-  border-top:24px solid var(--member-color-50,rgba(207,159,255,.4));
-}
-
-/* hexagon avatar */
-.result-avatar-wrap{
-  margin:0 auto 1.5rem;
-  width:110px;height:110px;position:relative;z-index:1;
-}
-.result-avatar{
-  width:100%;height:100%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Orbitron',monospace;font-size:14px;font-weight:900;
-  color:#000;
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  animation:hex-spin-in .8s ease forwards;
-  position:relative;
-}
-@keyframes hex-spin-in{
-  from{opacity:0;transform:scale(0) rotate(-90deg)}
-  to{opacity:1;transform:scale(1) rotate(0deg)}
-}
-.avatar-ring{
-  position:absolute;inset:-8px;
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  animation:ring-pulse 2s ease-in-out infinite;
-}
-@keyframes ring-pulse{
-  0%,100%{opacity:.4;transform:scale(1)}
-  50%{opacity:.8;transform:scale(1.04)}
-}
-
-.result-eyebrow{
-  font-family:'Orbitron',monospace;font-size:9px;
-  letter-spacing:.25em;color:var(--muted);
-  margin-bottom:.5rem;position:relative;z-index:1;
-}
-.result-name{
-  font-family:'Orbitron',monospace;
-  font-size:clamp(24px,7vw,40px);font-weight:900;
-  letter-spacing:.08em;margin-bottom:1.25rem;
-  position:relative;z-index:1;
-  animation:name-glow 3s ease-in-out infinite;
-}
-@keyframes name-glow{
-  0%,100%{filter:drop-shadow(0 0 10px currentColor)}
-  50%{filter:drop-shadow(0 0 25px currentColor)}
-}
-.result-desc{
-  font-size:14px;color:rgba(200,205,255,.65);
-  line-height:1.7;max-width:380px;margin:0 auto 1.5rem;
-  position:relative;z-index:1;letter-spacing:.02em;
-}
-.traits{
-  display:flex;flex-wrap:wrap;gap:8px;
-  justify-content:center;position:relative;z-index:1;
-}
-.trait{
-  padding:5px 14px;border-radius:1px;
-  font-family:'Orbitron',monospace;font-size:10px;
-  font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  border:1px solid currentColor;
-  animation:trait-in .5s ease backwards;
-}
-.trait:nth-child(1){animation-delay:.3s}
-.trait:nth-child(2){animation-delay:.45s}
-.trait:nth-child(3){animation-delay:.6s}
-@keyframes trait-in{
-  from{opacity:0;transform:translateY(8px) scale(.9)}
-  to{opacity:1;transform:none}
-}
-
-/* ── SHARE SECTION ── */
-.share-section{margin-top:1rem}
-.share-title{
-  font-family:'Orbitron',monospace;font-size:9px;
-  letter-spacing:.2em;color:var(--muted);
-  text-align:center;margin-bottom:1rem;
-  text-transform:uppercase;
-}
-#result-canvas-wrap{
-  border-radius:2px;overflow:hidden;
-  margin-bottom:1rem;
-  border:1px solid var(--border);
-  position:relative;
-}
-#result-canvas{width:100%;display:block}
-.share-btns{
-  display:grid;grid-template-columns:1fr 1fr 1fr;
-  gap:8px;margin-bottom:1rem;
-}
-.share-btn{
-  padding:12px 6px;border-radius:2px;
-  border:1px solid var(--border);
-  background:rgba(255,255,255,.03);
-  font-family:'Orbitron',monospace;font-size:9px;
-  font-weight:700;letter-spacing:.08em;
-  color:var(--text);cursor:none;text-align:center;
-  text-transform:uppercase;
-  transition:all .2s;position:relative;overflow:hidden;
-}
-.share-btn:hover{background:rgba(255,255,255,.08)}
-.share-btn.line{border-color:rgba(6,199,85,.3);color:#06C755}
-.share-btn.line:hover{background:rgba(6,199,85,.08);box-shadow:0 0 15px rgba(6,199,85,.2)}
-.share-btn.copy{border-color:rgba(207,159,255,.3);color:var(--glow-a)}
-.share-btn.copy:hover{background:rgba(207,159,255,.08);box-shadow:0 0 15px rgba(207,159,255,.2)}
-.share-btn.dl{border-color:rgba(255,180,60,.3);color:#FFB347}
-.share-btn.dl:hover{background:rgba(255,180,60,.08);box-shadow:0 0 15px rgba(255,180,60,.2)}
-.restart-btn{
-  width:100%;padding:13px;border:1px solid var(--border);
-  border-radius:2px;background:transparent;
-  font-family:'Orbitron',monospace;font-size:9px;
-  font-weight:700;letter-spacing:.15em;color:var(--muted);
-  cursor:none;text-transform:uppercase;
-  transition:color .2s,border-color .2s;
-}
-.restart-btn:hover{color:var(--text);border-color:rgba(255,255,255,.3)}
-
-/* ── CONFETTI ── */
-.confetti-piece{
-  position:fixed;top:-10px;pointer-events:none;
-  z-index:100;border-radius:2px;
-  animation:confetti-fall linear forwards;
-}
-@keyframes confetti-fall{
-  to{transform:translateY(110vh) rotate(720deg);opacity:0}
-}
-
-/* ── TOAST ── */
-.toast{
-  position:fixed;bottom:2rem;left:50%;
-  transform:translateX(-50%) translateY(20px);
-  background:rgba(10,10,30,.9);color:var(--glow-b);
-  font-family:'Orbitron',monospace;font-size:10px;
-  letter-spacing:.12em;font-weight:700;
-  padding:10px 20px;border:1px solid var(--glow-b);
-  border-radius:1px;opacity:0;
-  transition:opacity .3s,transform .3s;
-  pointer-events:none;z-index:999;
-  text-transform:uppercase;
-  box-shadow:0 0 20px rgba(91,224,255,.2);
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-</style>
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/layout.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <link rel="stylesheet" href="css/result.css"/>
 </head>
 <body>
 
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
-<canvas id="starfield"></canvas>
-<div class="nebula nebula-1"></div>
-<div class="nebula nebula-2"></div>
-<div class="nebula nebula-3"></div>
-<div class="result-bg-ring" id="result-bg-ring"></div>
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
 
-<div class="container">
+  <!-- Background FX -->
+  <canvas id="starfield"></canvas>
+  <div class="nebula nebula-1"></div>
+  <div class="nebula nebula-2"></div>
+  <div class="nebula nebula-3"></div>
+  <div class="result-bg-ring" id="result-bg-ring"></div>
 
-  <!-- QUIZ -->
-  <div id="quiz-section">
-    <div class="header">
-      <div class="signal">▸ SIGNAL DETECTED ◂ XG FREQUENCY 7.7Hz</div>
-      <h1>
-        <span class="line1">XG IDENTITY<br>SCAN</span>
-        <span class="line2">你最像哪位成員？</span>
-      </h1>
-      <p class="subtitle">7 個問題 · 來自外太空的人格測驗</p>
+  <div class="container">
+
+    <!-- ── QUIZ SECTION ── -->
+    <div id="quiz-section">
+      <div class="header">
+        <div class="signal">▸ SIGNAL DETECTED ◂ XG FREQUENCY 7.7Hz</div>
+        <h1>
+          <span class="line1">XG IDENTITY<br>SCAN</span>
+          <span class="line2">你最像哪位成員？</span>
+        </h1>
+        <p class="subtitle">7 個問題 · 來自外太空的人格測驗</p>
+      </div>
+
+      <div class="member-orbit" id="member-orbit">
+        <div class="member-node" style="background:var(--jurin)"  data-name="JURIN">J</div>
+        <div class="member-node" style="background:var(--chisa)"  data-name="CHISA">C</div>
+        <div class="member-node" style="background:var(--hinata)" data-name="HINATA">H</div>
+        <div class="member-node" style="background:var(--harvey)" data-name="HARVEY">H</div>
+        <div class="member-node" style="background:var(--juria)"  data-name="JURIA">J</div>
+        <div class="member-node" style="background:var(--maya)"   data-name="MAYA">M</div>
+        <div class="member-node" style="background:var(--cocona)" data-name="COCONA">C</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-track">
+          <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+        </div>
+        <span class="progress-num" id="prog-num">00/07</span>
+      </div>
+
+      <div class="card" id="q-card">
+        <div class="card-inner">
+          <div class="q-label" id="q-label">QUESTION_01</div>
+          <div class="q-text"  id="q-text"></div>
+          <div class="options" id="options-wrap"></div>
+        </div>
+      </div>
+
+      <button class="next-btn" id="next-btn">TRANSMIT →</button>
     </div>
 
-    <div class="member-orbit">
-      <div class="member-node" style="background:var(--jurin);color:#000" data-name="JURIN">J</div>
-      <div class="member-node" style="background:var(--chisa);color:#000" data-name="CHISA">C</div>
-      <div class="member-node" style="background:var(--hinata);color:#000" data-name="HINATA">H</div>
-      <div class="member-node" style="background:var(--harvey);color:#000" data-name="HARVEY">H</div>
-      <div class="member-node" style="background:var(--juria);color:#000" data-name="JURIA">J</div>
-      <div class="member-node" style="background:var(--maya);color:#000" data-name="MAYA">M</div>
-      <div class="member-node" style="background:var(--cocona);color:#000" data-name="COCONA">C</div>
-    </div>
+    <!-- ── RESULT SECTION ── -->
+    <div id="result-section">
+      <div class="result-card" id="result-card">
+        <div class="result-avatar-wrap">
+          <div class="avatar-ring" id="avatar-ring"></div>
+          <div class="result-avatar" id="r-avatar"></div>
+        </div>
+        <div class="result-eyebrow">IDENTITY MATCH CONFIRMED</div>
+        <div class="result-name"   id="r-name"></div>
+        <div class="result-desc"   id="r-desc"></div>
+        <div class="traits"        id="r-traits"></div>
+      </div>
 
-    <div class="progress-wrap">
-      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
-      <span class="progress-num" id="prog-num">00/07</span>
-    </div>
-
-    <div class="card" id="q-card">
-      <div class="card-inner">
-        <div class="q-label" id="q-label">QUESTION_01</div>
-        <div class="q-text" id="q-text"></div>
-        <div class="options" id="options-wrap"></div>
+      <div class="share-section">
+        <div class="share-title">▸ BROADCAST RESULT ◂</div>
+        <div id="result-canvas-wrap">
+          <canvas id="result-canvas"></canvas>
+        </div>
+        <div class="share-btns">
+          <button class="share-btn line" id="btn-line">LINE</button>
+          <button class="share-btn copy" id="btn-copy">COPY LINK</button>
+          <button class="share-btn dl"   id="btn-dl">DOWNLOAD</button>
+        </div>
+        <button class="restart-btn" id="btn-restart">↺ RE-SCAN</button>
       </div>
     </div>
-    <button class="next-btn" id="next-btn">TRANSMIT →</button>
-  </div>
 
-  <!-- RESULT -->
-  <div id="result-section">
-    <div class="result-card" id="result-card">
-      <div class="result-avatar-wrap">
-        <div class="avatar-ring" id="avatar-ring"></div>
-        <div class="result-avatar" id="r-avatar"></div>
-      </div>
-      <div class="result-eyebrow">IDENTITY MATCH CONFIRMED</div>
-      <div class="result-name" id="r-name"></div>
-      <div class="result-desc" id="r-desc"></div>
-      <div class="traits" id="r-traits"></div>
-    </div>
+  </div><!-- /container -->
 
-    <div class="share-section">
-      <div class="share-title">▸ BROADCAST RESULT ◂</div>
-      <div id="result-canvas-wrap">
-        <canvas id="result-canvas"></canvas>
-      </div>
-      <div class="share-btns">
-        <button class="share-btn line" onclick="shareToLine()">LINE</button>
-        <button class="share-btn copy" onclick="copyLink()">COPY LINK</button>
-        <button class="share-btn dl" onclick="downloadCard()">DOWNLOAD</button>
-      </div>
-      <button class="restart-btn" onclick="restart()">↺ RE-SCAN</button>
-    </div>
-  </div>
+  <div class="toast" id="toast"></div>
 
-</div>
-<div class="toast" id="toast"></div>
-
-<script>
-/* ── DATA ── */
-const MEMBERS={
-  JURIN: {color:'#e0e0e0',emoji:'🤍',desc:'天生的領袖，充滿自信與魅力，帶給身邊的人滿滿能量！做事果斷，從不懷疑自己的選擇。',traits:['自信','領袖氣質','直接']},
-  CHISA: {color:'#FFE566',emoji:'💛',desc:'完美主義者，對自己要求極高，擁有讓人一眼難忘的強烈氣場和無懈可擊的專注力。',traits:['完美主義','強烈','記憶點']},
-  HINATA:{color:'#5BE0FF',emoji:'🩵',desc:'你是團體裡的陽光，總是帶來歡笑和溫暖，朋友有困難第一個想到你。',traits:['正能量','溫暖','親切']},
-  HARVEY:{color:'#CF9FFF',emoji:'💜',desc:'充滿鬥志，做事拼到底，天生就是要站在舞台正中央的人，爆發力驚人。',traits:['熱情','拼勁','爆發力']},
-  JURIA: {color:'#FF9A3C',emoji:'🧡',desc:'活力四射又溫柔，你有種讓人一靠近就放鬆的魔力，笑起來會讓整個房間亮起來。',traits:['活力','溫柔','感染力']},
-  MAYA:  {color:'#FF5C5C',emoji:'❤️', desc:'有點神秘感，但一旦熟了會發現你超可愛。對藝術和美有獨特品味，情感豐富。',traits:['神秘感','藝術魂','可愛']},
-  COCONA:{color:'#3EFFAA',emoji:'💚',desc:'冷靜又穩定，是大家的定心丸。觀察力超強，總在對的時機說出最有力的話。',traits:['冷靜','智慧','觀察力']},
-};
-const QUESTIONS=[
-  {text:'週五晚上，你最想做什麼？',options:[
-    {text:'約朋友出去 High！',scores:{JURIN:2,HINATA:2}},
-    {text:'一個人聽音樂、放空',scores:{MAYA:2,COCONA:1}},
-    {text:'練習技能或做創作',scores:{CHISA:2,HARVEY:1}},
-    {text:'看劇或打電動放鬆',scores:{JURIA:2,HINATA:1}},
-  ]},
-  {text:'朋友說你給人的第一印象是？',options:[
-    {text:'超有自信、很有氣場',scores:{JURIN:2,CHISA:2}},
-    {text:'親切又好相處',scores:{HINATA:2,JURIA:1}},
-    {text:'有點神秘、難以捉摸',scores:{MAYA:2,COCONA:2}},
-    {text:'超有活力、活潑外向',scores:{HARVEY:2,JURIA:1}},
-  ]},
-  {text:'遇到困難的時候，你會怎麼做？',options:[
-    {text:'馬上找人商量、一起解決',scores:{HINATA:2,JURIN:1}},
-    {text:'自己想清楚再行動',scores:{COCONA:2,MAYA:1}},
-    {text:'直接硬幹，越困難越燃',scores:{HARVEY:2,CHISA:1}},
-    {text:'擬定完美計畫再出發',scores:{CHISA:2,JURIN:1}},
-  ]},
-  {text:'你的穿搭風格比較偏向？',options:[
-    {text:'帥氣俐落，能展現氣場的',scores:{JURIN:2,CHISA:1}},
-    {text:'可愛甜美，讓人心情好',scores:{JURIA:2,HINATA:1}},
-    {text:'個性前衛，不按牌理出牌',scores:{MAYA:2,HARVEY:1}},
-    {text:'簡單大方，舒服就好',scores:{COCONA:2,HINATA:1}},
-  ]},
-  {text:'在一個團體中，你通常是哪種角色？',options:[
-    {text:'掌控全場的 Leader',scores:{JURIN:2,HARVEY:1}},
-    {text:'觀察大家、在背後出謀劃策',scores:{COCONA:2,MAYA:1}},
-    {text:'炒熱氣氛的開心果',scores:{JURIA:2,HINATA:1}},
-    {text:'認真執行、讓成果完美呈現',scores:{CHISA:2,COCONA:1}},
-  ]},
-  {text:'你最重視的事情是？',options:[
-    {text:'對自己誠實，做自己喜歡的事',scores:{MAYA:2,HARVEY:1}},
-    {text:'和身邊的人保持好關係',scores:{HINATA:2,JURIA:1}},
-    {text:'不斷進步、超越自己',scores:{CHISA:2,HARVEY:1}},
-    {text:'穩定踏實，把每件事做好',scores:{COCONA:2,JURIN:1}},
-  ]},
-  {text:'如果你要出一首歌，會是哪種風格？',options:[
-    {text:'超有力道的 Hype 歌',scores:{HARVEY:2,JURIN:1}},
-    {text:'充滿情感讓人起雞皮疙瘩',scores:{MAYA:2,JURIA:1}},
-    {text:'俐落乾淨的 swag rap',scores:{CHISA:2,COCONA:1}},
-    {text:'活潑可愛讓人想跳舞',scores:{HINATA:2,JURIA:1}},
-  ]},
-];
-
-/* ── STATE ── */
-let current=0,scores={},selected=null,winnerKey=null;
-function initScores(){scores={};Object.keys(MEMBERS).forEach(k=>scores[k]=0)}
-
-/* ── CUSTOM CURSOR ── */
-const cur=document.getElementById('cursor');
-const curR=document.getElementById('cursor-ring');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
-function animRing(){
-  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
-  curR.style.left=rx+'px'; curR.style.top=ry+'px';
-  requestAnimationFrame(animRing);
-}
-animRing();
-
-/* ── STARFIELD ── */
-(function(){
-  const c=document.getElementById('starfield');
-  const ctx=c.getContext('2d');
-  let W,H,stars=[];
-  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;makeStars()}
-  function makeStars(){
-    stars=[];
-    for(let i=0;i<220;i++){
-      stars.push({
-        x:Math.random()*W,y:Math.random()*H,
-        r:Math.random()*1.5+.2,
-        a:Math.random(),da:(Math.random()-.5)*.008,
-        speed:Math.random()*.15+.02
-      });
-    }
-  }
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    stars.forEach(s=>{
-      s.y+=s.speed; if(s.y>H){s.y=0;s.x=Math.random()*W}
-      s.a+=s.da; if(s.a<.1||s.a>1) s.da*=-1;
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(200,210,255,${s.a})`;
-      ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  window.addEventListener('resize',resize);
-  resize(); draw();
-})();
-
-/* ── RENDER ── */
-function render(){
-  const q=QUESTIONS[current];
-  const pct=Math.round((current/QUESTIONS.length)*100);
-  document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('prog-num').textContent=String(current).padStart(2,'0')+'/'+String(QUESTIONS.length).padStart(2,'0');
-  document.getElementById('q-label').textContent='QUESTION_'+String(current+1).padStart(2,'0');
-  document.getElementById('q-text').textContent=q.text;
-  const wrap=document.getElementById('options-wrap');
-  wrap.innerHTML=q.options.map((o,i)=>`<button class="opt-btn" onclick="pick(this,${i})">${o.text}</button>`).join('');
-  selected=null;
-  const nb=document.getElementById('next-btn');
-  nb.classList.remove('show');
-  nb.textContent=current<QUESTIONS.length-1?'TRANSMIT →':'INITIATE SCAN ✦';
-}
-
-function pick(btn,i){
-  document.querySelectorAll('.opt-btn').forEach((b,idx)=>b.classList.toggle('selected',idx===i));
-  selected=i;
-  // ripple
-  const r=document.createElement('span'); r.className='ripple';
-  const rect=btn.getBoundingClientRect();
-  r.style.cssText=`width:${rect.width*2}px;height:${rect.width*2}px;left:${-rect.width/2}px;top:${-rect.width/2}px`;
-  btn.appendChild(r); setTimeout(()=>r.remove(),500);
-  document.getElementById('next-btn').classList.add('show');
-}
-
-function next(){
-  if(selected===null) return;
-  const s=QUESTIONS[current].options[selected].scores;
-  Object.entries(s).forEach(([k,v])=>scores[k]+=v);
-  // transition
-  const card=document.getElementById('q-card');
-  card.classList.add('transitioning');
-  setTimeout(()=>{
-    current++;
-    if(current>=QUESTIONS.length){showResult();return}
-    render();
-    card.classList.remove('transitioning');
-    card.classList.add('entering');
-    setTimeout(()=>card.classList.remove('entering'),400);
-  },300);
-}
-
-/* ── RESULT ── */
-function showResult(){
-  winnerKey=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
-  const m=MEMBERS[winnerKey];
-  document.getElementById('prog-fill').style.width='100%';
-  document.getElementById('prog-num').textContent='07/07';
-
-  // bg ring
-  const ring=document.getElementById('result-bg-ring');
-  ring.style.border=`1px solid ${m.color}33`;
-  ring.style.boxShadow=`0 0 80px ${m.color}22,inset 0 0 80px ${m.color}11`;
-  ring.classList.add('visible');
-
-  // avatar
-  const av=document.getElementById('r-avatar');
-  av.style.background=m.color;av.textContent=winnerKey[0];
-  document.getElementById('avatar-ring').style.background=m.color+'22';
-  document.getElementById('avatar-ring').style.border=`2px solid ${m.color}66`;
-
-  // result card CSS vars
-  const rc=document.getElementById('result-card');
-  rc.style.setProperty('--member-color-20',m.color+'33');
-  rc.style.setProperty('--member-color-50',m.color+'55');
-  rc.style.borderColor=m.color+'30';
-
-  document.getElementById('r-name').textContent=winnerKey+' '+m.emoji;
-  document.getElementById('r-name').style.color=m.color;
-  document.getElementById('r-desc').textContent=m.desc;
-  document.getElementById('r-traits').innerHTML=m.traits.map(t=>
-    `<span class="trait" style="color:${m.color};border-color:${m.color}66;background:${m.color}11">${t}</span>`
-  ).join('');
-
-  document.querySelectorAll('.member-node').forEach(d=>d.classList.toggle('active',d.dataset.name===winnerKey));
-
-  drawCanvas(winnerKey,m);
-  launchConfetti(m.color);
-
-  document.getElementById('quiz-section').style.display='none';
-  document.getElementById('result-section').classList.add('show');
-}
-
-/* ── CONFETTI ── */
-function launchConfetti(baseColor){
-  const colors=[baseColor,'#CF9FFF','#5BE0FF','#3EFFAA','#FFE566','#FF9A3C'];
-  for(let i=0;i<80;i++){
-    setTimeout(()=>{
-      const el=document.createElement('div');
-      el.className='confetti-piece';
-      const size=Math.random()*8+4;
-      el.style.cssText=`
-        left:${Math.random()*100}vw;
-        width:${size}px;height:${size*(Math.random()>.5?1:2.5)}px;
-        background:${colors[Math.floor(Math.random()*colors.length)]};
-        animation-duration:${Math.random()*2+1.5}s;
-        animation-delay:${Math.random()*.8}s;
-        transform:rotate(${Math.random()*360}deg);
-        opacity:${Math.random()*.7+.3};
-      `;
-      document.body.appendChild(el);
-      setTimeout(()=>el.remove(),3000);
-    },i*20);
-  }
-}
-
-/* ── CANVAS CARD ── */
-function drawCanvas(key,m){
-  const canvas=document.getElementById('result-canvas');
-  const W=1080,H=1080;
-  canvas.width=W;canvas.height=H;
-  const ctx=canvas.getContext('2d');
-
-  // bg
-  ctx.fillStyle='#00000f';ctx.fillRect(0,0,W,H);
-
-  // star field on canvas
-  for(let i=0;i<180;i++){
-    const x=Math.random()*W,y=Math.random()*H,r=Math.random()*1.5+.2;
-    const a=Math.random()*.7+.2;
-    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(200,210,255,${a})`;ctx.fill();
-  }
-
-  // glow
-  const g=ctx.createRadialGradient(W/2,H*.38,0,W/2,H*.38,460);
-  g.addColorStop(0,m.color+'44');g.addColorStop(1,'transparent');
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-
-  // scan lines
-  for(let y=0;y<H;y+=4){
-    ctx.fillStyle='rgba(0,0,10,0.15)';ctx.fillRect(0,y,W,2);
-  }
-
-  // grid
-  ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.lineWidth=1;
-  for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
-  for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
-
-  // top label
-  ctx.fillStyle='rgba(200,205,255,0.3)';
-  ctx.font='700 24px monospace';ctx.textAlign='center';
-  ctx.fillText('XG IDENTITY SCAN',W/2,78);
-
-  // hex avatar
-  const cx=W/2,cy=370,r=155;
-  // outer ring
-  ctx.beginPath();
-  hexPath(ctx,cx,cy,r+18);
-  ctx.strokeStyle=m.color+'55';ctx.lineWidth=3;ctx.stroke();
-  // inner fill
-  ctx.beginPath();hexPath(ctx,cx,cy,r);
-  ctx.fillStyle=m.color+'22';ctx.fill();
-  ctx.strokeStyle=m.color+'88';ctx.lineWidth=4;ctx.stroke();
-  // letter
-  ctx.fillStyle=m.color;
-  ctx.font='900 72px sans-serif';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(key[0],cx,cy);
-  ctx.textBaseline='alphabetic';
-
-  // match text
-  ctx.fillStyle='rgba(200,205,255,0.35)';
-  ctx.font='400 26px monospace';ctx.textAlign='center';
-  ctx.fillText('IDENTITY MATCH CONFIRMED',W/2,605);
-  ctx.fillStyle='rgba(200,205,255,0.25)';
-  ctx.font='400 20px monospace';
-  ctx.fillText('你最像',W/2,645);
-
-  // name
-  ctx.fillStyle=m.color;
-  ctx.font='900 90px sans-serif';
-  ctx.shadowColor=m.color;ctx.shadowBlur=30;
-  ctx.fillText(key+' '+m.emoji,W/2,750);
-  ctx.shadowBlur=0;
-
-  // traits
-  const traits=m.traits;
-  const tw=185,th=50,gap=14;
-  const totalW=traits.length*tw+(traits.length-1)*gap;
-  let tx=(W-totalW)/2;
-  traits.forEach(t=>{
-    ctx.fillStyle=m.color+'18';
-    clipRect(ctx,tx,775,tw,th,4);
-    ctx.strokeStyle=m.color+'55';ctx.lineWidth=1;
-    ctx.strokeRect(tx,775,tw,th);
-    ctx.fillStyle=m.color;
-    ctx.font='700 19px monospace';ctx.textAlign='center';
-    ctx.fillText(t.toUpperCase(),tx+tw/2,775+th/2+7);
-    tx+=tw+gap;
-  });
-
-  // desc
-  ctx.fillStyle='rgba(200,205,255,0.48)';
-  ctx.font='400 23px sans-serif';
-  wrapText(ctx,m.desc,W/2,900,780,40);
-
-  // bottom
-  ctx.fillStyle='rgba(200,205,255,0.18)';
-  ctx.font='400 18px monospace';
-  ctx.fillText(window.location.host||'xg-quiz',W/2,1048);
-}
-
-function hexPath(ctx,cx,cy,r){
-  ctx.beginPath();
-  for(let i=0;i<6;i++){
-    const a=Math.PI/180*(60*i-30);
-    const x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);
-    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-  }
-  ctx.closePath();
-}
-function clipRect(ctx,x,y,w,h,r){
-  ctx.beginPath();
-  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
-  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
-  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
-  ctx.closePath();ctx.fill();
-}
-function wrapText(ctx,text,cx,y,maxW,lineH){
-  const chars=text.split('');let line='';const lines=[];
-  for(const c of chars){
-    const t=line+c;
-    if(ctx.measureText(t).width>maxW&&line!==''){lines.push(line);line=c;}
-    else line=t;
-  }
-  if(line)lines.push(line);
-  const sy=y-((lines.length-1)*lineH)/2;
-  lines.forEach((l,i)=>ctx.fillText(l,cx,sy+i*lineH));
-}
-
-/* ── SHARE ── */
-function shareToLine(){
-  const url=encodeURIComponent(window.location.href);
-  const txt=encodeURIComponent('我做了 XG 人格測驗，結果我最像 '+winnerKey+' '+MEMBERS[winnerKey].emoji+'！你也來測看看？');
-  window.open('https://social-plugins.line.me/lineit/share?url='+url+'&text='+txt,'_blank');
-}
-function copyLink(){
-  navigator.clipboard.writeText(window.location.href)
-    .then(()=>showToast('LINK COPIED ✓'))
-    .catch(()=>{
-      const el=document.createElement('textarea');el.value=window.location.href;
-      document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);
-      showToast('LINK COPIED ✓');
-    });
-}
-function downloadCard(){
-  const a=document.createElement('a');
-  a.download='XG-'+winnerKey+'.png';
-  a.href=document.getElementById('result-canvas').toDataURL('image/png');
-  a.click();showToast('DOWNLOADING ↓');
-}
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;
-  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
-}
-
-/* ── RESTART ── */
-function restart(){
-  current=0;initScores();selected=null;winnerKey=null;
-  document.querySelectorAll('.member-node').forEach(d=>d.classList.remove('active'));
-  document.getElementById('result-bg-ring').classList.remove('visible');
-  document.getElementById('result-section').classList.remove('show');
-  document.getElementById('quiz-section').style.display='';
-  const card=document.getElementById('q-card');
-  card.classList.remove('transitioning','entering');
-  render();
-}
-
-/* ── INIT ── */
-document.getElementById('next-btn').addEventListener('click',next);
-initScores();render();
-</script>
+  <!-- JS (order matters) -->
+  <script src="js/data.js"></script>
+  <script src="js/starfield.js"></script>
+  <script src="js/cursor.js"></script>
+  <script src="js/canvas-card.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/share.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

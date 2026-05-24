@@ -1,0 +1,126 @@
+/* ─────────────────────────────────────
+   result.css — result card & components
+───────────────────────────────────── */
+
+/* Background pulse ring (behind everything) */
+.result-bg-ring {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  animation: pulse-ring 4s ease-in-out infinite;
+  opacity: 0;
+  transition: opacity 1s;
+}
+.result-bg-ring.visible { opacity: 1; }
+
+/* Result card */
+.result-card {
+  border-radius: 2px;
+  padding: 2.5rem 1.75rem 2rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
+  animation: result-entrance .8s cubic-bezier(.17,.67,.35,1.2) forwards;
+}
+/* Radial glow using CSS custom property set by JS */
+.result-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    var(--member-color-20, rgba(207,159,255,.15)) 0%,
+    transparent 65%
+  );
+}
+/* Top-right corner notch */
+.result-card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-left: 24px solid transparent;
+  border-top: 24px solid var(--member-color-50, rgba(207,159,255,.4));
+}
+
+/* Hexagon avatar */
+.result-avatar-wrap {
+  margin: 0 auto 1.5rem;
+  width: 110px; height: 110px;
+  position: relative;
+  z-index: 1;
+}
+.result-avatar {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-size: 14px; font-weight: 900;
+  color: #000;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: hex-spin-in .8s ease forwards;
+  position: relative;
+}
+.avatar-ring {
+  position: absolute;
+  inset: -8px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: ring-pulse 2s ease-in-out infinite;
+}
+
+/* Text content */
+.result-eyebrow {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  letter-spacing: .25em;
+  color: var(--muted);
+  margin-bottom: .5rem;
+  position: relative; z-index: 1;
+}
+.result-name {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(24px, 7vw, 40px);
+  font-weight: 900;
+  letter-spacing: .08em;
+  margin-bottom: 1.25rem;
+  position: relative; z-index: 1;
+  animation: name-glow 3s ease-in-out infinite;
+}
+.result-desc {
+  font-size: 14px;
+  color: rgba(200,205,255,.65);
+  line-height: 1.7;
+  max-width: 380px;
+  margin: 0 auto 1.5rem;
+  position: relative; z-index: 1;
+  letter-spacing: .02em;
+}
+
+/* Trait pills */
+.traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  position: relative; z-index: 1;
+}
+.trait {
+  padding: 5px 14px;
+  border-radius: 1px;
+  font-family: 'Orbitron', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  animation: trait-in .5s ease backwards;
+}
+.trait:nth-child(1) { animation-delay: .3s; }
+.trait:nth-child(2) { animation-delay: .45s; }
+.trait:nth-child(3) { animation-delay: .6s; }
