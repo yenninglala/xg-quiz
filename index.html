@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Open Graph — 分享到 LINE / IG / FB 顯示的預覽 -->
+  <meta property="og:title" content="你最像哪位 XG 成員？" />
+  <meta property="og:description" content="7 個問題，測出你的 XG 本命！" />
+  <meta property="og:image" content="og-cover.png" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <title>XG 人格測驗 — 你最像哪位成員？</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --jurin:  #e8e8e8;
+      --chisa:  #FFE066;
+      --hinata: #7DD8F5;
+      --harvey: #C39BF5;
+      --juria:  #FFB347;
+      --maya:   #FF6B6B;
+      --cocona: #5FCE8A;
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: rgba(255,255,255,0.1);
+      --text: #f0f0f0;
+      --muted: rgba(240,240,240,0.45);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(195,155,245,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(95,206,138,0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container { position: relative; z-index: 1; width: 100%; max-width: 560px; }
+
+    /* HEADER */
+    .header { text-align: center; margin-bottom: 2.5rem; }
+    .header .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 0.2em;
+      color: var(--muted); text-transform: uppercase; margin-bottom: 0.75rem;
+    }
+    .header h1 { font-size: clamp(24px, 5vw, 32px); font-weight: 800; line-height: 1.15; }
+    .header h1 .accent {
+      background: linear-gradient(90deg, #C39BF5, #FF6B6B, #FFE066);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .header .subtitle { margin-top: 0.75rem; font-size: 14px; color: var(--muted); }
+
+    /* MEMBER STRIP */
+    .member-strip { display: flex; justify-content: center; gap: 10px; margin-bottom: 2rem; }
+    .member-dot {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+      color: #0a0a0a; opacity: 0.5;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .member-dot.active { opacity: 1; transform: scale(1.25); }
+
+    /* PROGRESS */
+    .progress-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+    .progress-track { flex: 1; height: 2px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #C39BF5, #FF6B6B);
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .progress-num { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+    /* CARD */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; }
+    .q-label { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.75rem; }
+    .q-text { font-size: 18px; font-weight: 700; line-height: 1.45; margin-bottom: 1.5rem; }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .opt-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px 12px;
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 400;
+      color: var(--text); cursor: pointer; text-align: left; line-height: 1.45;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .opt-btn:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); }
+    .opt-btn.selected { border-color: #C39BF5; background: rgba(195,155,245,0.15); color: #e0cfff; font-weight: 700; }
+
+    /* NEXT BTN */
+    .next-btn {
+      width: 100%; margin-top: 1.25rem; padding: 14px; border: none; border-radius: 10px;
+      background: linear-gradient(90deg, #C39BF5, #FF6B6B);
+      color: #0a0a0a; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 800;
+      cursor: pointer; opacity: 0; pointer-events: none;
+      transform: translateY(6px); transition: opacity 0.3s, transform 0.3s;
+    }
+    .next-btn.show { opacity: 1; pointer-events: all; transform: translateY(0); }
+    .next-btn:active { transform: scale(0.98); }
+
+    /* RESULT */
+    #result-section { display: none; }
+    #result-section.show { display: block; }
+
+    .result-member-block {
+      border-radius: 16px; padding: 2.5rem 1.75rem 2rem; text-align: center;
+      margin-bottom: 1rem; border: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .result-member-block::before {
+      content: ''; position: absolute; inset: 0; opacity: 0.12;
+      background: radial-gradient(circle at 50% 30%, var(--accent-color), transparent 70%);
+    }
+    .result-avatar {
+      width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+      color: #0a0a0a; position: relative; z-index: 1;
+    }
+    .result-eyebrow {
+      font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.2em;
+      color: var(--muted); margin-bottom: 0.4rem; position: relative; z-index: 1;
+    }
+    .result-name { font-size: 36px; font-weight: 800; margin-bottom: 1rem; position: relative; z-index: 1; }
+    .result-desc {
+      font-size: 14px; color: rgba(240,240,240,0.7); line-height: 1.65;
+      max-width: 380px; margin: 0 auto 1.25rem; position: relative; z-index: 1;
+    }
+    .traits { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; position: relative; z-index: 1; }
+    .trait { padding: 5px 14px; border-radius: 99px; font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; }
+
+    /* SHARE */
+    .share-section { margin-top: 1rem; }
+    .share-section h3 {
+      font-size: 13px; font-weight: 700; color: var(--muted); text-align: center;
+      margin-bottom: 1rem; font-family: 'Space Mono', monospace; letter-spacing: 0.1em;
+    }
+    #result-canvas-wrap { border-radius: 12px; overflow: hidden; margin-bottom: 1rem; border: 1px solid var(--border); }
+    #result-canvas { width: 100%; display: block; }
+
+    .share-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+    .share-btn {
+      padding: 12px 8px; border-radius: 10px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
+      color: var(--text); cursor: pointer; text-align: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .share-btn:hover { background: rgba(255,255,255,0.1); }
+    .share-btn.line  { border-color: rgba(6,199,85,0.4);   color: #06C755; }
+    .share-btn.copy  { border-color: rgba(195,155,245,0.4); color: #C39BF5; }
+    .share-btn.dl    { border-color: rgba(255,180,70,0.4);  color: #FFB347; }
+
+    .restart-btn {
+      width: 100%; padding: 13px; border: 1px solid var(--border); border-radius: 10px;
+      background: transparent; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+      color: var(--muted); cursor: pointer; transition: color 0.2s, border-color 0.2s;
+    }
+    .restart-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #C39BF5; color: #0a0a0a;
+      font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+      padding: 10px 20px; border-radius: 99px;
+      opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- QUIZ -->
+  <div id="quiz-section">
+    <div class="header">
+      <div class="eyebrow">XG PERSONALITY QUIZ</div>
+      <h1>你最像哪位<br><span class="accent">XG 成員</span>？</h1>
+      <p class="subtitle">7 個問題，找出你的 XG 本命</p>
+    </div>
+
+    <div class="member-strip">
+      <div class="member-dot" style="background:var(--jurin)"  data-name="JURIN">J</div>
+      <div class="member-dot" style="background:var(--chisa)"  data-name="CHISA">C</div>
+      <div class="member-dot" style="background:var(--hinata)" data-name="HINATA">H</div>
+      <div class="member-dot" style="background:var(--harvey)" data-name="HARVEY">H</div>
+      <div class="member-dot" style="background:var(--juria)"  data-name="JURIA">J</div>
+      <div class="member-dot" style="background:var(--maya)"   data-name="MAYA">M</div>
+      <div class="member-dot" style="background:var(--cocona)" data-name="COCONA">C</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      <span class="progress-num" id="prog-num">0 / 7</span>
+    </div>
+
+    <div class="card">
+      <div class="q-label" id="q-label">Q1</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="options-wrap"></div>
+    </div>
+    <button class="next-btn" id="next-btn">下一題 →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result-section">
+    <div class="result-member-block" id="result-block">
+      <div class="result-avatar" id="r-avatar"></div>
+      <div class="result-eyebrow">你最像</div>
+      <div class="result-name" id="r-name"></div>
+      <div class="result-desc" id="r-desc"></div>
+      <div class="traits" id="r-traits"></div>
+    </div>
+
+    <div class="share-section">
+      <h3>— 分享結果 —</h3>
+      <div id="result-canvas-wrap">
+        <canvas id="result-canvas"></canvas>
+      </div>
+      <div class="share-btns">
+        <button class="share-btn line" onclick="shareToLine()">LINE 分享</button>
+        <button class="share-btn copy" onclick="copyLink()">複製連結</button>
+        <button class="share-btn dl"   onclick="downloadCard()">下載圖片</button>
+      </div>
+      <button class="restart-btn" onclick="restart()">再測一次</button>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const MEMBERS = {
+  JURIN:  { color:'#e0e0e0', emoji:'🤍', desc:'天生的領袖，充滿自信與魅力，帶給身邊的人滿滿能量！做事果斷，從不懷疑自己的選擇。', traits:['自信','領袖氣質','直接'] },
+  CHISA:  { color:'#FFE066', emoji:'💛', desc:'完美主義者，對自己要求極高，擁有讓人一眼難忘的強烈氣場和無懈可擊的專注力。', traits:['完美主義','強烈','記憶點'] },
+  HINATA: { color:'#7DD8F5', emoji:'🩵', desc:'你是團體裡的陽光，總是帶來歡笑和溫暖，朋友有困難第一個想到你。', traits:['正能量','溫暖','親切'] },
+  HARVEY: { color:'#C39BF5', emoji:'💜', desc:'充滿鬥志，做事拼到底，天生就是要站在舞台正中央的人，爆發力驚人。', traits:['熱情','拼勁','爆發力'] },
+  JURIA:  { color:'#FFB347', emoji:'🧡', desc:'活力四射又溫柔，你有種讓人一靠近就放鬆的魔力，笑起來會讓整個房間亮起來。', traits:['活力','溫柔','感染力'] },
+  MAYA:   { color:'#FF6B6B', emoji:'❤️',  desc:'有點神秘感，但一旦熟了會發現你超可愛。對藝術和美有獨特品味，情感豐富。', traits:['神秘感','藝術魂','可愛'] },
+  COCONA: { color:'#5FCE8A', emoji:'💚', desc:'冷靜又穩定，是大家的定心丸。觀察力超強，總在對的時機說出最有力的話。', traits:['冷靜','智慧','觀察力'] },
+};
+
+const QUESTIONS = [
+  { text:'週五晚上，你最想做什麼？',
+    options:[
+      {text:'約朋友出去 High！', scores:{JURIN:2,HINATA:2}},
+      {text:'一個人聽音樂、放空', scores:{MAYA:2,COCONA:1}},
+      {text:'練習技能或做創作', scores:{CHISA:2,HARVEY:1}},
+      {text:'看劇或打電動放鬆', scores:{JURIA:2,HINATA:1}},
+    ]},
+  { text:'朋友說你給人的第一印象是？',
+    options:[
+      {text:'超有自信、很有氣場', scores:{JURIN:2,CHISA:2}},
+      {text:'親切又好相處', scores:{HINATA:2,JURIA:1}},
+      {text:'有點神秘、難以捉摸', scores:{MAYA:2,COCONA:2}},
+      {text:'超有活力、活潑外向', scores:{HARVEY:2,JURIA:1}},
+    ]},
+  { text:'遇到困難的時候，你會怎麼做？',
+    options:[
+      {text:'馬上找人商量、一起解決', scores:{HINATA:2,JURIN:1}},
+      {text:'自己想清楚再行動', scores:{COCONA:2,MAYA:1}},
+      {text:'直接硬幹，越困難越燃', scores:{HARVEY:2,CHISA:1}},
+      {text:'擬定完美計畫再出發', scores:{CHISA:2,JURIN:1}},
+    ]},
+  { text:'你的穿搭風格比較偏向？',
+    options:[
+      {text:'帥氣俐落，能展現氣場的', scores:{JURIN:2,CHISA:1}},
+      {text:'可愛甜美，讓人心情好', scores:{JURIA:2,HINATA:1}},
+      {text:'個性前衛，不按牌理出牌', scores:{MAYA:2,HARVEY:1}},
+      {text:'簡單大方，舒服就好', scores:{COCONA:2,HINATA:1}},
+    ]},
+  { text:'在一個團體中，你通常是哪種角色？',
+    options:[
+      {text:'掌控全場的 Leader', scores:{JURIN:2,HARVEY:1}},
+      {text:'觀察大家、在背後出謀劃策', scores:{COCONA:2,MAYA:1}},
+      {text:'炒熱氣氛的開心果', scores:{JURIA:2,HINATA:1}},
+      {text:'認真執行、讓成果完美呈現', scores:{CHISA:2,COCONA:1}},
+    ]},
+  { text:'你最重視的事情是？',
+    options:[
+      {text:'對自己誠實，做自己喜歡的事', scores:{MAYA:2,HARVEY:1}},
+      {text:'和身邊的人保持好關係', scores:{HINATA:2,JURIA:1}},
+      {text:'不斷進步、超越自己', scores:{CHISA:2,HARVEY:1}},
+      {text:'穩定踏實，把每件事做好', scores:{COCONA:2,JURIN:1}},
+    ]},
+  { text:'如果你要出一首歌，會是哪種風格？',
+    options:[
+      {text:'超有力道的 Hype 歌', scores:{HARVEY:2,JURIN:1}},
+      {text:'充滿情感讓人起雞皮疙瘩', scores:{MAYA:2,JURIA:1}},
+      {text:'俐落乾淨的 swag rap', scores:{CHISA:2,COCONA:1}},
+      {text:'活潑可愛讓人想跳舞', scores:{HINATA:2,JURIA:1}},
+    ]},
+];
+
+let current=0, scores={}, selected=null, winnerKey=null;
+
+function initScores(){ scores={}; Object.keys(MEMBERS).forEach(k=>scores[k]=0); }
+
+function render(){
+  const q=QUESTIONS[current];
+  const pct=Math.round((current/QUESTIONS.length)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-num').textContent=current+' / '+QUESTIONS.length;
+  document.getElementById('q-label').textContent='Q'+(current+1);
+  document.getElementById('q-text').textContent=q.text;
+  const wrap=document.getElementById('options-wrap');
+  wrap.innerHTML=q.options.map((o,i)=>`<button class="opt-btn" onclick="pick(${i})">${o.text}</button>`).join('');
+  selected=null;
+  const nb=document.getElementById('next-btn');
+  nb.classList.remove('show');
+  nb.textContent=current<QUESTIONS.length-1?'下一題 →':'看結果 ✦';
+}
+
+function pick(i){
+  document.querySelectorAll('.opt-btn').forEach((b,idx)=>b.classList.toggle('selected',idx===i));
+  selected=i;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function next(){
+  if(selected===null) return;
+  const s=QUESTIONS[current].options[selected].scores;
+  Object.entries(s).forEach(([k,v])=>scores[k]+=v);
+  current++;
+  if(current>=QUESTIONS.length) showResult();
+  else render();
+}
+
+function showResult(){
+  winnerKey=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
+  const m=MEMBERS[winnerKey];
+  document.getElementById('prog-fill').style.width='100%';
+  document.getElementById('prog-num').textContent=QUESTIONS.length+' / '+QUESTIONS.length;
+
+  const av=document.getElementById('r-avatar');
+  av.style.background=m.color;
+  av.textContent=winnerKey;
+
+  const rb=document.getElementById('result-block');
+  rb.style.setProperty('--accent-color',m.color);
+  rb.style.borderColor=m.color+'44';
+
+  document.getElementById('r-name').textContent=winnerKey+' '+m.emoji;
+  document.getElementById('r-name').style.color=m.color;
+  document.getElementById('r-desc').textContent=m.desc;
+  document.getElementById('r-traits').innerHTML=m.traits.map(t=>
+    `<span class="trait" style="background:${m.color}22;color:${m.color}">${t}</span>`
+  ).join('');
+
+  document.querySelectorAll('.member-dot').forEach(d=>d.classList.toggle('active',d.dataset.name===winnerKey));
+
+  drawCanvas(winnerKey,m);
+  document.getElementById('quiz-section').style.display='none';
+  document.getElementById('result-section').classList.add('show');
+}
+
+function drawCanvas(key,m){
+  const canvas=document.getElementById('result-canvas');
+  const W=1080,H=1080;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+
+  // bg
+  ctx.fillStyle='#0a0a0a';
+  ctx.fillRect(0,0,W,H);
+
+  // glow
+  const g=ctx.createRadialGradient(W/2,H*0.38,0,W/2,H*0.38,420);
+  g.addColorStop(0,m.color+'50'); g.addColorStop(1,'transparent');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=1;
+  for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=80){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // top label
+  ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.font='700 26px monospace';
+  ctx.textAlign='center';
+  ctx.fillText('XG PERSONALITY QUIZ',W/2,85);
+
+  // circle
+  const cx=W/2,cy=380,r=160;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle=m.color+'20'; ctx.fill();
+  ctx.strokeStyle=m.color+'99'; ctx.lineWidth=5; ctx.stroke();
+
+  // avatar letter
+  ctx.fillStyle=m.color;
+  ctx.font='800 68px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(key[0],cx,cy);
+  ctx.textBaseline='alphabetic';
+
+  // you are most like
+  ctx.fillStyle='rgba(255,255,255,0.38)';
+  ctx.font='400 30px monospace';
+  ctx.fillText('你最像',W/2,610);
+
+  // name
+  ctx.fillStyle=m.color;
+  ctx.font='800 88px sans-serif';
+  ctx.fillText(key+' '+m.emoji,W/2,720);
+
+  // traits
+  const traits=m.traits;
+  const tw=190,th=52,gap=16;
+  const totalW=traits.length*tw+(traits.length-1)*gap;
+  let tx=(W-totalW)/2;
+  traits.forEach(t=>{
+    ctx.fillStyle=m.color+'22';
+    roundRect(ctx,tx,760,tw,th,26);
+    ctx.fillStyle=m.color;
+    ctx.font='700 22px monospace';
+    ctx.fillText(t,tx+tw/2,760+th/2+8);
+    tx+=tw+gap;
+  });
+
+  // desc
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.font='400 24px sans-serif';
+  wrapText(ctx,m.desc,W/2,890,780,40);
+
+  // site url
+  ctx.fillStyle='rgba(255,255,255,0.18)';
+  ctx.font='400 20px monospace';
+  ctx.fillText(window.location.host||'xg-quiz',W/2,1045);
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath(); ctx.fill();
+}
+
+function wrapText(ctx,text,cx,y,maxW,lineH){
+  const chars=text.split('');
+  let line=''; const lines=[];
+  for(const c of chars){
+    const test=line+c;
+    if(ctx.measureText(test).width>maxW && line!==''){lines.push(line);line=c;}
+    else line=test;
+  }
+  if(line) lines.push(line);
+  const sy=y-((lines.length-1)*lineH)/2;
+  lines.forEach((l,i)=>ctx.fillText(l,cx,sy+i*lineH));
+}
+
+function shareToLine(){
+  const url=encodeURIComponent(window.location.href);
+  const txt=encodeURIComponent('我做了 XG 人格測驗，結果我最像 '+winnerKey+' '+MEMBERS[winnerKey].emoji+'！你也來測看看？');
+  window.open('https://social-plugins.line.me/lineit/share?url='+url+'&text='+txt,'_blank');
+}
+
+function copyLink(){
+  navigator.clipboard.writeText(window.location.href).then(()=>showToast('已複製連結！快傳給朋友 ✦')).catch(()=>{
+    const el=document.createElement('textarea'); el.value=window.location.href;
+    document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+    showToast('已複製連結！');
+  });
+}
+
+function downloadCard(){
+  const a=document.createElement('a');
+  a.download='XG-quiz-'+winnerKey+'.png';
+  a.href=document.getElementById('result-canvas').toDataURL('image/png');
+  a.click(); showToast('圖片下載中 ↓');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function restart(){
+  current=0; initScores(); selected=null; winnerKey=null;
+  document.querySelectorAll('.member-dot').forEach(d=>d.classList.remove('active'));
+  document.getElementById('result-section').classList.remove('show');
+  document.getElementById('quiz-section').style.display='';
+  render();
+}
+
+document.getElementById('next-btn').addEventListener('click',next);
+initScores(); render();
+</script>
+</body>
+</html>
